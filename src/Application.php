@@ -42,7 +42,58 @@ class Application {
      * @return void
      */
     public function route(): void {
+        // Start session if not already started
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+            error_log('Session started with ID: ' . session_id());
+        }
+        
         $payload = [];
+
+        // Handle language switch
+        if ($_SERVER['REQUEST_URI'] === '/switch-language') {
+            // Enable error reporting for debugging
+            error_reporting(E_ALL);
+            ini_set('display_errors', 1);
+            
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                // Log the raw input
+                $rawInput = file_get_contents('php://input');
+                error_log('Raw input: ' . $rawInput);
+                
+                // Parse JSON input
+                $input = json_decode($rawInput, true);
+                error_log('Parsed input: ' . print_r($input, true));
+                
+                if ($input === null) {
+                    error_log('JSON decode error: ' . json_last_error_msg());
+                }
+                
+                // Ensure session is active
+                if (session_status() !== PHP_SESSION_ACTIVE) {
+                    session_start();
+                }
+                
+                $this->controller->switchLanguage($input);
+                return;
+            } elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
+                // Ensure session is active
+                if (session_status() !== PHP_SESSION_ACTIVE) {
+                    session_start();
+                }
+                
+                // Return current language status
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success' => true,
+                    'locale' => Translator::getInstance()->getCurrentLocale(),
+                    'session_locale' => $_SESSION['locale'] ?? null,
+                    'session_id' => session_id(),
+                    'session_status' => session_status()
+                ]);
+                exit;
+            }
+        }
 
         // Check if the current request is a POST request
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
