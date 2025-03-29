@@ -1,0 +1,61 @@
+{
+    "frontend": {
+        "safe_directories": [
+            "resources/views",
+            "resources/css",
+            "resources/sass",
+            "resources/js",
+            "resources/lang",
+            "public/css",
+            "public/js",
+            "public/images",
+            "public/fonts"
+        ],
+        "protected_directories": [
+            "src",
+            "src/Calculator.php",
+            "src/Controller.php",
+            "src/config"
+        ],
+        "build_commands": {
+            "css": "npm run build:tailwind",
+            "js": "npm run production",
+            "watch": "npm run watch:tailwind"
+        },
+        "development_rules": {
+            "css": {
+                "allowed_extensions": [".css", ".scss", ".sass"],
+                "output_directory": "public/css"
+            },
+            "js": {
+                "allowed_extensions": [".js"],
+                "output_directory": "public/js"
+            },
+            "views": {
+                "allowed_extensions": [".php", ".html"],
+                "directory": "resources/views"
+            },
+            "assets": {
+                "allowed_extensions": [".png", ".jpg", ".jpeg", ".gif", ".svg", ".woff", ".woff2", ".ttf", ".eot"],
+                "directories": ["public/images", "public/fonts"]
+            }
+        },
+        "linting": {
+            "css": {
+                "command": "npx stylelint \"resources/css/**/*.css\"",
+                "config": ".stylelintrc"
+            },
+            "js": {
+                "command": "npx eslint \"resources/js/**/*.js\"",
+                "config": ".eslintrc"
+            }
+        },
+        "testing": {
+            "frontend_only": true,
+            "exclude_patterns": [
+                "src/**/*",
+                "tests/**/*"
+            ]
+        }
+    }
+} 

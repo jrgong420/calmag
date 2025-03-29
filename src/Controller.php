@@ -594,4 +594,36 @@ class Controller {
         }
         return $elements;
     }
+
+    public function switchLanguage(array $payload): void {
+        // Add error reporting for debugging
+        error_reporting(E_ALL);
+        ini_set('display_errors', 1);
+        
+        error_log('Switch language called with payload: ' . print_r($payload, true));
+        
+        if (isset($payload['locale']) && in_array($payload['locale'], ['en', 'de'])) {
+            error_log('Setting locale to: ' . $payload['locale']);
+            Translator::getInstance()->setLocale($payload['locale']);
+            
+            // Return JSON response
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => true, 
+                'locale' => Translator::getInstance()->getCurrentLocale(),
+                'debug' => $payload
+            ]);
+            exit;
+        }
+        
+        error_log('Invalid locale in payload');
+        // Return error if locale is invalid
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => false,
+            'error' => 'Invalid locale',
+            'debug' => $payload
+        ]);
+        exit;
+    }
 }

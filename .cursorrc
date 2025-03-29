@@ -1,0 +1,86 @@
+{
+    "rules": {
+        "frontend": {
+            "safe_directories": [
+                "resources/views",
+                "resources/css",
+                "resources/sass",
+                "resources/js",
+                "resources/lang",
+                "public/css",
+                "public/js",
+                "public/images",
+                "public/fonts"
+            ],
+            "protected_directories": [
+                "src",
+                "src/Calculator.php",
+                "src/Controller.php",
+                "src/config"
+            ],
+            "file_patterns": {
+                "css": ["**/*.css", "**/*.scss", "**/*.sass"],
+                "js": ["**/*.js"],
+                "views": ["**/*.php", "**/*.html"],
+                "assets": ["**/*.png", "**/*.jpg", "**/*.jpeg", "**/*.gif", "**/*.svg", "**/*.woff", "**/*.woff2", "**/*.ttf", "**/*.eot"]
+            }
+        }
+    },
+    "editor": {
+        "formatOnSave": true,
+        "lintOnSave": true,
+        "defaultFormatter": {
+            "css": "stylelint",
+            "js": "eslint",
+            "php": "php-cs-fixer"
+        }
+    },
+    "search": {
+        "exclude": [
+            "src/**/*",
+            "tests/**/*",
+            "vendor/**/*",
+            "node_modules/**/*"
+        ]
+    },
+    "completion": {
+        "include": [
+            "resources/**/*",
+            "public/**/*"
+        ],
+        "exclude": [
+            "src/**/*",
+            "tests/**/*"
+        ]
+    },
+    "diagnostics": {
+        "include": [
+            "resources/**/*",
+            "public/**/*"
+        ],
+        "exclude": [
+            "src/**/*",
+            "tests/**/*"
+        ]
+    },
+    "suggestions": {
+        "include": [
+            "resources/**/*",
+            "public/**/*"
+        ],
+        "exclude": [
+            "src/**/*",
+            "tests/**/*"
+        ]
+    },
+    "refactoring": {
+        "include": [
+            "resources/**/*",
+            "public/**/*"
+        ],
+        "exclude": [
+            "src/**/*",
+            "tests/**/*"
+        ]
+    }
+} 

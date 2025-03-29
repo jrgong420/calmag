@@ -1,5 +1,8 @@
+<?php
+use Webklex\CalMag\Translator;
+?>
 <!DOCTYPE html>
-<html lang="<?php echo __('region.default')?>">
+<html lang="<?php echo Translator::getInstance()->getCurrentLocale()?>">
 <head>
     <meta charset="utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -18,20 +21,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="/css/app.css" rel="stylesheet">
     <link href="/css/tailwind.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body class="bg-slate-900 text-slate-200 flex flex-wrap justify-center">
     <div id="main" class="w-full flex flex-wrap justify-center">
 
         <div class="w-full border-b border-slate-700 bg-slate-800 px-4 md:px-6 py-2 shadow-lg justify-center justify-items-center align-middle">
             <div class="container px-2">
-                <div class="flex align-middle justify-end justify-items-end">
+                <div class="flex align-middle justify-between">
                     <div class="flex-none text-slate-300 font-semibold text-3xl pb-1 align-middle">
                         <span class="text-red-500 font-light">Cal</span>
                         <span class="text-sky-100 font-light -ml-1">Mag</span>
                         <span class="pl-1"><?php echo __("header.logo.appendix")?></span>
                         <span class="text-xs">v<?php echo Webklex\CalMag\Application::VERSION; ?></span>
                     </div>
-                    <div class="pl-4 grow text-slate-300 font-light grid gap-1 justify-items-end content-center">
+                    <div class="flex items-center gap-4">
+                        <div class="language-selector flex gap-2">
+                            <button class="lang-btn <?php echo Translator::getInstance()->getCurrentLocale() === 'en' ? 'active' : ''; ?>" data-lang="en">EN</button>
+                            <button class="lang-btn <?php echo Translator::getInstance()->getCurrentLocale() === 'de' ? 'active' : ''; ?>" data-lang="de">DE</button>
+                        </div>
                         <a href="https://github.com/webklex/calmag" class="text-red-700 px-2" title="Fork me on GitHub">
                             <i class="fa-brands fa-github-alt fa-2xl"></i>
                         </a>
@@ -39,3 +47,219 @@
                 </div>
             </div>
         </div>
+
+        <style>
+            .language-selector {
+                display: flex;
+                gap: 0.5rem;
+                position: relative;
+            }
+            .lang-btn {
+                padding: 0.5rem 1rem;
+                border: 1px solid #4a5568;
+                border-radius: 4px;
+                background: transparent;
+                color: #cbd5e0;
+                cursor: pointer;
+                transition: all 0.2s;
+                font-size: 0.875rem;
+                font-weight: 500;
+                min-width: 3rem;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+            }
+            .lang-btn:hover:not(:disabled) {
+                background: #4a5568;
+                color: #f7fafc;
+            }
+            .lang-btn.active {
+                background: #4a5568;
+                color: #f7fafc;
+                border-color: #718096;
+            }
+            .lang-btn:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+            .lang-btn.loading::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+                animation: loading 1.5s infinite;
+            }
+            @keyframes loading {
+                0% { transform: translateX(-100%); }
+                100% { transform: translateX(100%); }
+            }
+            .lang-notification {
+                position: fixed;
+                top: 1rem;
+                right: 1rem;
+                padding: 0.75rem 1.5rem;
+                border-radius: 0.5rem;
+                color: white;
+                font-weight: 500;
+                z-index: 50;
+                animation: slideIn 0.3s ease-out;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            }
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        </style>
+
+        <script>
+            // Create a persistent log storage
+            window.persistentLogs = [];
+            const originalConsole = {
+                log: console.log,
+                error: console.error,
+                warn: console.warn
+            };
+
+            // Override console methods to store logs
+            console.log = function(...args) {
+                window.persistentLogs.push(['log', ...args]);
+                originalConsole.log.apply(console, args);
+            };
+            console.error = function(...args) {
+                window.persistentLogs.push(['error', ...args]);
+                originalConsole.error.apply(console, args);
+            };
+            console.warn = function(...args) {
+                window.persistentLogs.push(['warn', ...args]);
+                originalConsole.warn.apply(console, args);
+            };
+
+            // Function to display persistent logs
+            function displayPersistentLogs() {
+                console.log('=== Persistent Logs ===');
+                window.persistentLogs.forEach(([type, ...args]) => {
+                    originalConsole[type].apply(console, args);
+                });
+                console.log('=== End Persistent Logs ===');
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                // Display any existing logs
+                displayPersistentLogs();
+                
+                console.log('DOM Content Loaded');
+                console.log('Current HTML lang attribute:', document.documentElement.lang);
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    console.log('Found language button:', btn.dataset.lang, 'Active:', btn.classList.contains('active'));
+                    btn.addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        const lang = btn.dataset.lang;
+                        console.log('Language button clicked:', lang);
+                        console.log('Current active button:', document.querySelector('.lang-btn.active')?.dataset.lang);
+                        
+                        // Disable buttons during switch
+                        document.querySelectorAll('.lang-btn').forEach(b => {
+                            b.disabled = true;
+                            b.classList.add('loading');
+                            console.log('Button disabled and loading:', b.dataset.lang);
+                        });
+                        
+                        try {
+                            console.log('Sending request to /switch-language');
+                            const requestBody = { locale: lang };
+                            console.log('Request body:', JSON.stringify(requestBody));
+                            
+                            const response = await fetch('/switch-language', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify(requestBody)
+                            });
+                            console.log('Response status:', response.status);
+                            console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+                            
+                            const data = await response.json();
+                            console.log('Response data:', data);
+                            
+                            if (data.success) {
+                                console.log('Language switch successful');
+                                console.log('New locale:', data.locale);
+                                
+                                // Update active state
+                                document.querySelectorAll('.lang-btn').forEach(b => {
+                                    b.classList.remove('active');
+                                    if (b.dataset.lang === lang) {
+                                        b.classList.add('active');
+                                    }
+                                });
+                                console.log('Updated button states');
+                                
+                                // Show success message
+                                showNotification('Language switched successfully!', 'bg-green-500');
+                                
+                                // Update HTML lang attribute
+                                document.documentElement.lang = lang;
+                                console.log('Updated HTML lang attribute to:', lang);
+                                
+                                // Verify the language switch before reloading
+                                console.log('Verifying language switch...');
+                                const verifyResponse = await fetch('/switch-language', {
+                                    method: 'GET',
+                                    headers: {
+                                        'Accept': 'application/json'
+                                    }
+                                });
+                                const verifyData = await verifyResponse.json();
+                                console.log('Verification response:', verifyData);
+                                
+                                if (verifyData.locale === lang) {
+                                    console.log('Language switch verified, scheduling reload...');
+                                    // Force reload with cache bypass after a longer delay
+                                    setTimeout(() => {
+                                        console.log('Reloading page...');
+                                        window.location.reload(true);
+                                    }, 3000); // Increased delay to 3 seconds
+                                } else {
+                                    console.error('Language switch verification failed');
+                                    throw new Error('Language switch verification failed');
+                                }
+                            } else {
+                                console.error('Language switch failed:', data.error);
+                                throw new Error(data.error || 'Failed to switch language');
+                            }
+                        } catch (error) {
+                            console.error('Error during language switch:', error);
+                            console.error('Error stack:', error.stack);
+                            showNotification(error.message, 'bg-red-500');
+                        } finally {
+                            // Re-enable buttons and remove loading state
+                            document.querySelectorAll('.lang-btn').forEach(b => {
+                                b.disabled = false;
+                                b.classList.remove('loading');
+                                console.log('Button re-enabled:', b.dataset.lang);
+                            });
+                        }
+                    });
+                });
+                
+                function showNotification(message, bgColor) {
+                    console.log('Showing notification:', message);
+                    const notification = document.createElement('div');
+                    notification.className = `lang-notification ${bgColor}`;
+                    notification.textContent = message;
+                    document.body.appendChild(notification);
+                    
+                    // Remove notification after 3 seconds
+                    setTimeout(() => {
+                        console.log('Removing notification');
+                        notification.style.animation = 'slideIn 0.3s ease-in reverse';
+                        setTimeout(() => notification.remove(), 300);
+                    }, 3000);
+                }
+            });
+        </script>
